@@ -9,23 +9,23 @@
 #include <pthread.h>
 
 
-struct Threads_args {
+typedef struct {
 	int* list;
 	int type;
 	int id;
 	int position;
-};
+}Threads_args;
 
-struct  Threads_result {
+typedef struct {
 	int* list;
 	int* errors;
-	int* type;
-};
+	int* types;
+}Threads_result;
 
 
 int read_sudoku(const char* filename, int sudoku[9][9]);
 
-int validate_list(int* list);
+void* validate_list(void* list);
 
 Threads_result threads_result;
 
@@ -34,12 +34,14 @@ int main(int argc, char** argv)
 {
 	int sudoku[9][9];
 
+	read_sudoku("fichero.txt", sudoku);
+
 	pthread_t threads[18];
 
 	Threads_args* args = (Threads_args*) realloc(NULL, 18*sizeof(int));
 	threads_result.list = (int*) calloc(18, sizeof(int));
 	threads_result.errors = (int*) calloc(18, sizeof(int));
-	threads_result.type = (int*) calloc(18, sizeof(int));
+	threads_result.types = (int*) calloc(18, sizeof(int));
 
 	int i = 0, count = 0, j;
 
@@ -50,24 +52,49 @@ int main(int argc, char** argv)
 		args[count].position = i+1;
 
 		args[count+1].list = (int*) realloc(NULL, 9*sizeof(int));
+		args[count+1].type = 1;
 		args[count+1].id = count+1;
 		args[count+1].position = i+1;
 
 		//fill row and col
 		j = 0;
 		while(j<9) {
-			args[count].list = sudoku[i][j];
-			args[count+1].list = sudoku[j][i];
+			args[count].list[j] = sudoku[i][j];
+			args[count+1].list[j] = sudoku[j][i];
 			j++;
 		}
 
 		//Throw threads
+		pthread_create(&threads[count], NULL, validate_list, &args[count]);
+		pthread_create(&threads[count+1], NULL, validate_list, &args[count+1]);
 
 		count +=2;
 		i++;
 
 		
 
+	}
+
+	i = 0;
+	while(i < 18) {
+		pthread_join(threads[i], NULL);
+		i++;
+	}
+
+	printf("Errores: \n");
+
+	i = 0;
+	while(i < 18) {
+		printf("%d ", threads_result.errors[i]);
+		i++;
+	}
+
+	printf("Tipos: \n");
+
+	i = 0;
+	while(i < 18) {
+		printf("%d ", threads_result.types[i]);
+		i++;
 	}
 
 
@@ -108,8 +135,11 @@ int read_sudoku(const char* filename, int sudoku[9][9]) {
 }
 
 
-int validate_list(int* list) {
+void* validate_list(void* ptr) {
 	int result, i=1,j;
+
+	Threads_args* args = (Threads_args*)ptr;
+	int* list = args->list;
 
 	while(i<=9) {
 		j=0;
@@ -121,10 +151,14 @@ int validate_list(int* list) {
 			}
 			j++;
 		}
-		if(result == 0)
-			return 0;
+		if(result == 0) {
+			threads_result.list[args->id] = args->position;
+			threads_result.errors[args->id] = 1;
+			threads_result.types[args->id] = args->type;
+			printf("%d[%d]\n--------\n", threads_result.errors[args->id], args->id);
+			i = 10;
+			break;
+		}
 		i++;
 	}
-
-	return 1;
 }
