@@ -38,12 +38,19 @@ int main(int argc, char** argv)
 
 	pthread_t threads[18];
 
-	Threads_args* args = (Threads_args*) realloc(NULL, 18*sizeof(int));
+	Threads_args* args = (Threads_args*) realloc(NULL, 18*sizeof(Threads_args));
 	threads_result.list = (int*) calloc(18, sizeof(int));
 	threads_result.errors = (int*) calloc(18, sizeof(int));
 	threads_result.types = (int*) calloc(18, sizeof(int));
 
 	int i = 0, count = 0, j;
+
+	/*printf("After: \n");
+	i = 0;
+	while(i < 18) {
+		printf("%d ", threads_result.errors[i]);
+		i++;
+	}*/
 
 	while(i < 9) {
 		args[count].list = (int*) realloc(NULL, 9*sizeof(int));
@@ -64,9 +71,13 @@ int main(int argc, char** argv)
 			j++;
 		}
 
+		//printf("%d\n=======\n", threads_result.errors[4]);
+
 		//Throw threads
 		pthread_create(&threads[count], NULL, validate_list, &args[count]);
 		pthread_create(&threads[count+1], NULL, validate_list, &args[count+1]);
+
+		printf("%d, i = %d\n", count, i);
 
 		count +=2;
 		i++;
@@ -81,7 +92,8 @@ int main(int argc, char** argv)
 		i++;
 	}
 
-	printf("Errores: \n");
+
+	printf("Errors: \n");
 
 	i = 0;
 	while(i < 18) {
@@ -89,7 +101,7 @@ int main(int argc, char** argv)
 		i++;
 	}
 
-	printf("Tipos: \n");
+	printf("\n\nTipos: \n");
 
 	i = 0;
 	while(i < 18) {
@@ -97,7 +109,16 @@ int main(int argc, char** argv)
 		i++;
 	}
 
+	printf("\n\nLista: \n");
 
+	i = 0;
+	while(i < 18) {
+		printf("%d ", threads_result.list[i]);
+		i++;
+	}
+
+
+	pthread_exit(NULL);
 
 	return 0;
 }
@@ -155,10 +176,11 @@ void* validate_list(void* ptr) {
 			threads_result.list[args->id] = args->position;
 			threads_result.errors[args->id] = 1;
 			threads_result.types[args->id] = args->type;
-			printf("%d[%d]\n--------\n", threads_result.errors[args->id], args->id);
-			i = 10;
-			break;
+			//printf("%d\n--------ee\n", threads_result.errors[4]);
+			pthread_exit(NULL);	
 		}
 		i++;
 	}
+
+	pthread_exit(NULL);
 }
