@@ -103,14 +103,14 @@ int main(int argc, char** argv)
 	}
 
 
-	int count_errors = count_indexes_not_null_from_list(threads_result.errors[i], NUM_OF_THREADS);
+	int count_errors = count_indexes_not_null_from_list(threads_result.errors, NUM_OF_THREADS);
 
 	if(count_errors == 0) {
 		printf("Fichero correcto\n");
 	} 
 	else
 	{
-		int* indexes = delete_positions_nulls_from_list(threads_result.errors[i], NUM_OF_THREADS, count_errors);
+		int* indexes = delete_positions_nulls_from_list(threads_result.errors, NUM_OF_THREADS, count_errors);
 
 		i = 0;
 		int index;
@@ -118,6 +118,7 @@ int main(int argc, char** argv)
 			index = indexes[i]-1; 
 			printf("Tipo: %d\n", threads_result.types[index]);
 			printf("Posicion: %d\n", threads_result.list[index]);
+			i++;
 		}
 	}
 
