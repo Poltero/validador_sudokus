@@ -8,6 +8,7 @@
 #include <sys/mman.h>
 #include <pthread.h>
 
+#define NUM_OF_THREADS 18
 
 typedef struct {
 	int* list;
@@ -22,10 +23,19 @@ typedef struct {
 	int* types;
 }Threads_result;
 
+typedef struct {
+	int* list;
+	int size;
+}Vector;
+
 
 int read_sudoku(const char* filename, int sudoku[9][9]);
 
 void* validate_list(void* list);
+
+int count_indexes_not_null_from_list(int* l, int size);
+
+int* delete_positions_nulls_from_list(int* l, int size, int num_positions_nulls);
 
 Threads_result threads_result;
 
@@ -93,28 +103,22 @@ int main(int argc, char** argv)
 	}
 
 
-	printf("Errors: \n");
+	int count_errors = count_indexes_not_null_from_list(threads_result.errors[i], NUM_OF_THREADS);
 
-	i = 0;
-	while(i < 18) {
-		printf("%d ", threads_result.errors[i]);
-		i++;
-	}
+	if(count_errors == 0) {
+		printf("Fichero correcto\n");
+	} 
+	else
+	{
+		int* indexes = delete_positions_nulls_from_list(threads_result.errors[i], NUM_OF_THREADS, count_errors);
 
-	printf("\n\nTipos: \n");
-
-	i = 0;
-	while(i < 18) {
-		printf("%d ", threads_result.types[i]);
-		i++;
-	}
-
-	printf("\n\nLista: \n");
-
-	i = 0;
-	while(i < 18) {
-		printf("%d ", threads_result.list[i]);
-		i++;
+		i = 0;
+		int index;
+		while(i < count_errors) {
+			index = indexes[i]-1; 
+			printf("Tipo: %d\n", threads_result.types[index]);
+			printf("Posicion: %d\n", threads_result.list[index]);
+		}
 	}
 
 
@@ -174,7 +178,7 @@ void* validate_list(void* ptr) {
 		}
 		if(result == 0) {
 			threads_result.list[args->id] = args->position;
-			threads_result.errors[args->id] = 1;
+			threads_result.errors[args->id] = args->id+1;
 			threads_result.types[args->id] = args->type;
 			//printf("%d\n--------ee\n", threads_result.errors[4]);
 			pthread_exit(NULL);	
@@ -184,3 +188,34 @@ void* validate_list(void* ptr) {
 
 	pthread_exit(NULL);
 }
+
+/*Cuenta cuantos indices distintos de NULL exisiten de en una lista*/
+int count_indexes_not_null_from_list(int* l, int size) {
+	int i = 0, counter = 0;
+
+	while(i < size) {
+		if(l[i] != 0)
+			counter++;
+		i++;
+	}
+
+	return counter;
+}
+
+int* delete_positions_nulls_from_list(int* l, int size, int num_positions_nulls) {
+	int* list_result = (int*) realloc(NULL, num_positions_nulls*sizeof(int));
+
+	int i = 0, j = 0;
+
+	while(i < size) {
+		if(l[i] != 0) {
+			list_result[j] = l[i];
+			j++; 
+		}
+		i++;
+	}
+
+	return list_result;
+}
+
+
