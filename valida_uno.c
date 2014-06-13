@@ -37,6 +37,9 @@ int count_indexes_not_null_from_list(int* l, int size);
 
 int* delete_positions_nulls_from_list(int* l, int size, int num_positions_nulls);
 
+void print_errors(int* indexes, int size);
+
+
 Threads_result threads_result;
 
 
@@ -55,12 +58,6 @@ int main(int argc, char** argv)
 
 	int i = 0, count = 0, j;
 
-	/*printf("After: \n");
-	i = 0;
-	while(i < 18) {
-		printf("%d ", threads_result.errors[i]);
-		i++;
-	}*/
 
 	while(i < 9) {
 		args[count].list = (int*) realloc(NULL, 9*sizeof(int));
@@ -81,13 +78,10 @@ int main(int argc, char** argv)
 			j++;
 		}
 
-		//printf("%d\n=======\n", threads_result.errors[4]);
 
 		//Throw threads
 		pthread_create(&threads[count], NULL, validate_list, &args[count]);
 		pthread_create(&threads[count+1], NULL, validate_list, &args[count+1]);
-
-		printf("%d, i = %d\n", count, i);
 
 		count +=2;
 		i++;
@@ -112,18 +106,12 @@ int main(int argc, char** argv)
 	{
 		int* indexes = delete_positions_nulls_from_list(threads_result.errors, NUM_OF_THREADS, count_errors);
 
-		i = 0;
-		int index;
-		while(i < count_errors) {
-			index = indexes[i]-1; 
-			printf("Tipo: %d\n", threads_result.types[index]);
-			printf("Posicion: %d\n", threads_result.list[index]);
-			i++;
-		}
+		print_errors(indexes, count_errors);
 	}
 
 
 	pthread_exit(NULL);
+
 
 	return 0;
 }
@@ -160,6 +148,36 @@ int read_sudoku(const char* filename, int sudoku[9][9]) {
 	return 0;
 }
 
+void print_errors(int* indexes, int size) {
+	int* types = 0;
+	int* positions = 0;
+	types = threads_result.types;
+	positions = threads_result.list;
+
+	int i = 0, index = 0;
+
+	while(i < size) {
+		index = indexes[i]-1;
+
+		printf("Fichero (name): Error en: ");
+
+		if (types[index] == 0)
+		{
+			printf("Fila - ");	
+		}
+		else
+		{
+			printf("Columna - ");
+		}
+
+		printf("%d\n", positions[index]);
+
+		i++;
+	}
+
+
+}
+
 
 void* validate_list(void* ptr) {
 	int result, i=1,j;
@@ -181,7 +199,6 @@ void* validate_list(void* ptr) {
 			threads_result.list[args->id] = args->position;
 			threads_result.errors[args->id] = args->id+1;
 			threads_result.types[args->id] = args->type;
-			//printf("%d\n--------ee\n", threads_result.errors[4]);
 			pthread_exit(NULL);	
 		}
 		i++;
@@ -218,5 +235,6 @@ int* delete_positions_nulls_from_list(int* l, int size, int num_positions_nulls)
 
 	return list_result;
 }
+
 
 
