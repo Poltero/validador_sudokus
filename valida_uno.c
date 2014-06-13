@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <pthread.h>
+#include "valida_uno_functions.c"
 
 
 int main(int argc, char** argv)
@@ -81,6 +82,3 @@ int main(int argc, char** argv)
 
 	return 0;
 }
-
-
-

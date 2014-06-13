@@ -90,3 +90,34 @@ int* delete_positions_nulls_from_list(int* l, int size, int num_positions_nulls)
 
 	return list_result;
 }
+
+
+void print_errors(int* indexes, int size) {
+	int* types = 0;
+	int* positions = 0;
+	types = threads_result.types;
+	positions = threads_result.list;
+
+	int i = 0, index = 0;
+
+	while(i < size) {
+		index = indexes[i]-1;
+
+		printf("Fichero (name): Error en: ");
+
+		if (types[index] == 0)
+		{
+			printf("Fila - ");	
+		}
+		else
+		{
+			printf("Columna - ");
+		}
+
+		printf("%d\n", positions[index]);
+
+		i++;
+	}
+
+
+}
