@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 {
 	int sudoku[9][9];
 
-	read_sudoku("fichero.txt", sudoku);
+	read_sudoku(argv[1], sudoku);
 
 	pthread_t threads[18];
 
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
 	{
 		int* indexes = delete_positions_nulls_from_list(threads_result.errors, NUM_OF_THREADS, count_errors);
 
-		print_errors(indexes, count_errors);
+		print_errors(indexes, count_errors, argv[1]);
 	}
 
 

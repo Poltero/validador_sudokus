@@ -28,4 +28,4 @@ int count_indexes_not_null_from_list(int* l, int size);
 
 int* delete_positions_nulls_from_list(int* l, int size, int num_positions_nulls);
 
-void print_errors(int* indexes, int size);
+void print_errors(int* indexes, int size, char* path);
