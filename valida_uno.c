@@ -71,8 +71,6 @@ int main(int argc, char** argv)
 
 	int fd = open(argv[2],  O_CREAT|O_WRONLY|O_TRUNC);
 
-	printf("File descriptor: %d\n", fd);
-
 	if(fd != -1) {
 		dup2(fd, 1);
 	} else {
