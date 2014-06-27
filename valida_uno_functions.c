@@ -29,6 +29,8 @@ int read_sudoku(const char* filename, int sudoku[9][9]) {
 		readCounter++;
 	}
 
+	close(fd);
+
 	return 0;
 }
 

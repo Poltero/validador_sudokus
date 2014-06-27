@@ -8,6 +8,7 @@
 #include <sys/mman.h>
 #include <pthread.h>
 #include "valida_uno_functions.c"
+#include <signal.h>
 
 
 int main(int argc, char** argv)
@@ -66,8 +67,20 @@ int main(int argc, char** argv)
 
 	int count_errors = count_indexes_not_null_from_list(threads_result.errors, NUM_OF_THREADS);
 
+	//Create files
+
+	int fd = open(argv[2],  O_CREAT|O_WRONLY|O_TRUNC);
+
+	printf("File descriptor: %d\n", fd);
+
+	if(fd != -1) {
+		dup2(fd, 1);
+	} else {
+		printf("Error con el file: %s\n", argv[2]);
+	}
+
 	if(count_errors == 0) {
-		printf("Fichero correcto\n");
+		printf("Fichero correcto %s\n", argv[1]);
 	} 
 	else
 	{
@@ -76,6 +89,7 @@ int main(int argc, char** argv)
 		print_errors(indexes, count_errors, argv[1]);
 	}
 
+	close(fd);
 
 	pthread_exit(NULL);
 
